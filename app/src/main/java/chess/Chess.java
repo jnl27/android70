@@ -25,7 +25,7 @@ public class Chess {
 	 */
 	static boolean askDraw=false;
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		setUpGame();
 		Scanner sc = new Scanner(System.in);
 		String input = "";
@@ -73,7 +73,7 @@ public class Chess {
 			newBoardState(input);
 		}
 		
-	}
+	}*/
 	
 	/**
 	 * setUpGame is a method which resets/sets up the chessboard and the pieces in the right place

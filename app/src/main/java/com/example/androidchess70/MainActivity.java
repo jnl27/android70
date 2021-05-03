@@ -1,5 +1,6 @@
 package com.example.androidchess70;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import chess.*;
 import pieces.*;
@@ -8,6 +9,9 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +44,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setUpBoardViews();
 
         gameOver = findViewById(R.id.gameOver);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.undo:
+                Toast.makeText(this, "undo selected", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.ai:
+                Toast.makeText(this, "ai selected", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.resign:
+                Toast.makeText(this, "resign selected", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.draw:
+                Toast.makeText(this, "draw selected", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.game_options_menu,menu);
+        return true;
     }
 
     private void setUpBoardViews() {

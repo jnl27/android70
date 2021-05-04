@@ -223,6 +223,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         displayBoard[7][7] = (TextView) findViewById(R.id.F77);
         displayBoardBg[7][7] = (TextView) findViewById(R.id.bg77);
 
+        for (int i=0; i<8; i++){ //colors switch in original setup, lazy fix
+            for (int j=0; j<8; j++){
+                if ((i+j)%2 == 0){
+                    displayBoardBg[j][i].setBackgroundResource(R.color.colorBoardLight);
+                }else {
+                    displayBoardBg[j][i].setBackgroundResource(R.color.colorBoardDark);
+                }
+            }
+        }
         placePieces();
     }
 
@@ -482,12 +491,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("ChessApp", "empty select!");
                 return;
             }else if (chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece().getColor() != currColor) {//wrong turn, do nothing
+                Toast.makeText(this, "wrong color!", Toast.LENGTH_SHORT).show();
                 Log.d("ChessApp", "wrong color!");
                 return;
             }else if (noValidMoves(chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece())){
+                Toast.makeText(this, "No valid moves for piece " + chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece().getPieceName(), Toast.LENGTH_SHORT).show();
                 Log.d("ChessApp", "No valid moves for piece " + chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece().getPieceName());
                 return;
             }else if (!canBlockCheck(clickedSpot) && !(chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece() instanceof King) && ((whiteTurn && isKingInCheck(0, findKingPosition(0, chessBoard), chessBoard)) || (!whiteTurn && isKingInCheck(1, findKingPosition(1, chessBoard), chessBoard)))){ //King is in check, move something else dummy
+                Toast.makeText(this, "Selected Piece cannot block check!", Toast.LENGTH_SHORT).show();
                 Log.d("ChessApp", "Selected Piece cannot block check!");
                 return;
             }else{ //valid selection
@@ -617,16 +629,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     displayBoard[xfrom][yfrom].setBackgroundResource(0);
                     //clear color selection
                     if ((xfrom + yfrom)%2 == 0) {
-                        displayBoardBg[xfrom][yfrom].setBackgroundResource(R.color.colorBoardDark);
-                    }else {
                         displayBoardBg[xfrom][yfrom].setBackgroundResource(R.color.colorBoardLight);
+                    }else {
+                        displayBoardBg[xfrom][yfrom].setBackgroundResource(R.color.colorBoardDark);
                     }
                     if (!isKingInCheck(currColor, findKingPosition(currColor, chessBoard), chessBoard)){
                         Spot kingSpot = findKingPosition(currColor, chessBoard);
                         if ((kingSpot.getXCoordinate() + kingSpot.getYCoordinate()) % 2 == 0) {
-                            displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
-                        } else {
                             displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardLight);
+                        }else {
+                            displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
                         }
                     }
                     firstClick = true;
@@ -650,9 +662,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 } else {
                     if ((kingSpot.getXCoordinate() + kingSpot.getYCoordinate()) % 2 == 0) {
-                        displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
-                    } else {
                         displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardLight);
+                    }else {
+                        displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
                     }
                 }
                 Log.d("ChessApp", "White's move: ");
@@ -672,9 +684,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 } else {
                     if ((kingSpot.getXCoordinate() + kingSpot.getYCoordinate()) % 2 == 0) {
-                        displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
-                    } else {
                         displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardLight);
+                    }else {
+                        displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
                     }
                 }
                 Log.d("ChessApp", "Black's Move");

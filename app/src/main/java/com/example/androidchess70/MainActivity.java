@@ -697,7 +697,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     firstClick = true;
                     whiteTurn = whiteTurn ? false : true; //switch colors
                     deselect.setVisibility(View.INVISIBLE);
-
+                    pawnPromo = false; //just for safety
+                    enPassant = false;
                 }
         }
         if (firstClick) {

@@ -8,12 +8,14 @@ import pieces.*;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public ArrayList<String> prevMoves;
     public TextView gameOver;
     public LinearLayout pawnPromoer;
-
+    public Button deselect;
 
 
 
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setUpBoardViews();
 
         gameOver = findViewById(R.id.gameOver);
-
+        deselect = findViewById(R.id.deselect);
         pawnPromoer = findViewById(R.id.pawnPromoer);
 
     }
@@ -316,6 +318,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+    public void clearBoardSelections(){
+        for (int i=0; i<8; i++){
+            for (int j=0; j<8; j++){
+                if ((i + j) % 2 == 0){
+                    displayBoardBg[j][i].setBackgroundResource(R.color.colorBoardLight);
+                }else {
+                    displayBoardBg[j][i].setBackgroundResource(R.color.colorBoardDark);
+                }
+            }
+        }
+    }
+    public void deselect(View v){
+        firstClick = true;
+        clearBoardSelections();
+        deselect.setVisibility(View.INVISIBLE);
+        fromSpot = chessBoard.grid[0][0];
+    }
     @Override
     public void onClick(View v){
         //Log.d("ChessApp", "CLICKED" + v.getId());
@@ -544,6 +563,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     currKing.castledQ = false;
                     Log.d("ChessApp", "currKing's castledKQ statuses are: " + currKing.castledK + ", " + currKing.castledQ);
                 }*/
+                deselect.setVisibility(View.VISIBLE);
                 firstClick = false;
                 fromSpot = clickedSpot;
             }
@@ -676,6 +696,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     firstClick = true;
                     whiteTurn = whiteTurn ? false : true; //switch colors
+                    deselect.setVisibility(View.INVISIBLE);
 
                 }
         }
@@ -772,7 +793,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (int i=0; i<8; i++){
             for (int j=0; j<8; j++){
                 //Log.d("ChessApp", "Now checking valid move to (" + i + "," + j + ")");
-                if (piece.validMoveWithoutCheck(chessBoard, clickedSpot, chessBoard.grid[i][j])){
+                if (piece.validMoveWithoutCheck(chessBoard, clickedSpot, chessBoard.grid[i][j]) && chessBoard.isPathEmpty(clickedSpot, chessBoard.grid[i][j])){
                     Log.d("ChessApp", "Valid move to (" + i + "," + j + ")");
                     return false;
                 }
@@ -847,5 +868,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 displayBoard[j][i].setClickable(false);
             }
         }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Would you like to record this game?")
+                .setTitle("GAME OVER");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent intent = new Intent(MainActivity.this, SaveGameScreen.class);
+                startActivity(intent);
+            }
+        });
+        builder.setNegativeButton("No Thanks", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent intent = new Intent(MainActivity.this, HomePage.class);
+                startActivity(intent);
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

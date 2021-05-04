@@ -663,6 +663,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (checkmate) {
                         gameOver.setText("Black Wins!");
                         gameOver.setVisibility(View.VISIBLE);
+                        gameOver();
                     } else {
                         Log.d("ChessApp", "White King in Check");
                     }
@@ -685,6 +686,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (checkmate) {
                         gameOver.setText("White Wins!");
                         gameOver.setVisibility(View.VISIBLE);
+                        gameOver();
                     } else {
                         Log.d("ChessApp", "Black King in Check");
                     }
@@ -810,6 +812,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }else{
                 return 0;
             } 
+        }
+    }
+    public void gameOver(){
+        for (int i=0; i<8; i++){
+            for (int j=0; j<8; j++){
+                displayBoard[j][i].setClickable(false);
+            }
         }
     }
 }

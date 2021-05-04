@@ -32,6 +32,12 @@ public abstract class ChessPiece {
 	public void setColor(int col) {
 		this.color = col;
 	}
+
+	/**
+	 * setFirst method is used to assign a boolean value to determine whether or not a ChessPiece has made its first move
+	 * @param bool true or false for its first move
+	 */
+	public void setFirst(boolean bool) {first = bool;}
 	/**
 	 * getColor method is used to get the color of a ChessPiece
 	 *

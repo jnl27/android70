@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,28 +23,38 @@ import static chess.Chess.findKingPosition;
 import static chess.Chess.isCheckMate;
 import static chess.Chess.isKingInCheck;
 import static chess.Chess.setUpGame;
+import static chess.Chess.validMoves;
 import static pieces.King.castledK;
 import static pieces.King.castledQ;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    public static Board chessBoard = new Board();
-    static boolean whiteTurn = true;
-    public TextView[][] displayBoard = new TextView[8][8];
-    public TextView[][] displayBoardBg = new TextView[8][8];
-    public Spot clickedSpot = chessBoard.grid[0][0];
-    public Spot fromSpot = chessBoard.grid[0][0];
-    public boolean firstClick = true;
+    public static Board chessBoard;
+    public static boolean whiteTurn;
+    public TextView[][] displayBoard;
+    public TextView[][] displayBoardBg;
+    public Spot clickedSpot;
+    public Spot fromSpot;
+    public boolean firstClick;
     public int numMoves = 0;
     public ArrayList<Spot> prevMoves = new ArrayList<>();
     public TextView gameOver;
+    public LinearLayout pawnPromoer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        chessBoard = new Board();
+        whiteTurn = true;
+        displayBoard = new TextView[8][8];
+        displayBoardBg = new TextView[8][8];
+        clickedSpot = chessBoard.grid[0][0];
+        fromSpot = chessBoard.grid[0][0];
+        firstClick = true;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpBoardViews();
 
         gameOver = findViewById(R.id.gameOver);
+        pawnPromoer = findViewById(R.id.pawnPromoer);
     }
 
     @Override
@@ -265,10 +276,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void onClick(View v){
-        Log.d("ChessApp", "CLICKED" + v.getId());
-        Context context = getApplicationContext();
-        Toast newToast = Toast.makeText(context, v.getId()+"!", Toast.LENGTH_SHORT);
-        /*
+        //Log.d("ChessApp", "CLICKED" + v.getId());
+        //Toast newToast = Toast.makeText(this, v.getId()+"!", Toast.LENGTH_SHORT);
+        //newToast.show();
         switch (v.getId()){
             case R.id.F00:
                 clickedSpot = chessBoard.grid[0][0];
@@ -464,66 +474,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
         int currColor = whiteTurn ? 0 : 1;
+        //Log.d("ChessApp", "CURR COLOR: " + currColor + "\n CLICKED SPOT: (" + clickedSpot.getXCoordinate() + "," + clickedSpot.getYCoordinate() + ")\n CLICKED PIECE: " + clickedSpot.getPiece().getPieceName());
 
-        if (whiteTurn) {
-            //System.out.println();
-            boolean check=isKingInCheck(0,findKingPosition(0));
-            Spot kingSpot = findKingPosition(0);
-            if (check){
-                displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorKingInDanger);
-                boolean checkmate=isCheckMate(0);
-                if (checkmate) {
-                    gameOver.setText("White Wins!");
-                    gameOver.setVisibility(View.VISIBLE);
-                }
-                else {
-                    System.out.println("Check");
-                }
-            }else {
-                if ((kingSpot.getXCoordinate() + kingSpot.getYCoordinate()) % 2 == 0) {
-                    displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
-                } else {
-                    displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardLight);
-                }
-            }
-            System.out.print("White's move: ");
 
-        }
-        else {
-            System.out.println();
-            boolean check=isKingInCheck(1,findKingPosition(1));
-            Spot kingSpot = findKingPosition(1);
-            if (check){
-                displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorKingInDanger);
-                boolean checkmate=isCheckMate(1);
-                if (checkmate) {
-                    gameOver.setText("Black Wins!");
-                    gameOver.setVisibility(View.VISIBLE);
-                }
-                else {
-                    System.out.println("Check");
-                }
-            }else {
-                if ((kingSpot.getXCoordinate() + kingSpot.getYCoordinate()) % 2 == 0) {
-                    displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
-                } else {
-                    displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardLight);
-                }
-            }
-            System.out.print("Black's move: ");
-        }
         if (firstClick){
-            if (chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece() == null) { //do nothing, invalid selection
+            if (chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].isEmpty()) { //do nothing, invalid selection
+                Log.d("ChessApp", "empty select!");
                 return;
             }else if (chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece().getColor() != currColor) {//wrong turn, do nothing
+                Log.d("ChessApp", "wrong color!");
+                return;
+            }else if (noValidMoves(chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece())){
+                Log.d("ChessApp", "No valid moves for piece " + chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece().getPieceName());
+                return;
+            }else if (!canBlockCheck(clickedSpot) && !(chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece() instanceof King) && ((whiteTurn && isKingInCheck(0, findKingPosition(0, chessBoard), chessBoard)) || (!whiteTurn && isKingInCheck(1, findKingPosition(1, chessBoard), chessBoard)))){ //King is in check, move something else dummy
+                Log.d("ChessApp", "Selected Piece cannot block check!");
                 return;
             }else{ //valid selection
                 displayBoardBg[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.color.colorSelected);
+                Log.d("ChessApp", clickedSpot.getPiece().getPieceName() + " was selected!");
+                /*if (clickedSpot.getPiece() instanceof King){
+                    King currKing = (King) clickedSpot.getPiece();
+                    currKing.castledK = false;
+                    currKing.castledQ = false;
+                    Log.d("ChessApp", "currKing's castledKQ statuses are: " + currKing.castledK + ", " + currKing.castledQ);
+                }*/
                 firstClick = false;
                 fromSpot = clickedSpot;
             }
         }else{ //second selection
-            if (clickedSpot.isEmpty()){
+
                 if (fromSpot.getPiece().validMoveWithoutCheck(chessBoard, fromSpot, clickedSpot) && chessBoard.isPathEmpty(fromSpot, clickedSpot)){ //valid move to empty space
                     boolean pawnPromo = false;
                     boolean enPassant = false;
@@ -570,12 +550,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int xfrom = fromSpot.getXCoordinate();
                     int yfrom = fromSpot.getYCoordinate();
 
+                    mover.setFirst(false);
+
                     if (mover instanceof Pawn) { //pawn promo potential or enpassant
                         Pawn currPawn = (Pawn) mover;
                         if (whiteTurn) {
                             if (fromSpot.getYCoordinate() == 1){
                                 //WHITE PAWN PROMO dialog
                                 //	System.out.println("white's pawn has been promoted to " + toPromo);
+                                pawnPromoer.setVisibility(View.VISIBLE);
                                 pawnPromo = true;
                             }else if (currPawn.getEnPassant()){
                                 enPassant = true;
@@ -589,6 +572,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             if (fromSpot.getYCoordinate() == 6){
                                 //BLACK PAWN PROMO DIALOG
                                 //	System.out.println("black's pawn has been promoted to " + toPromo);
+                                pawnPromoer.setVisibility(View.VISIBLE);
                                 pawnPromo = true;
                             }else if (currPawn.getEnPassant()){
                                 enPassant = true;
@@ -600,7 +584,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     }
-
                     if (!pawnPromo && !enPassant) {
                         //check new Spot for enemy Piece, if so then remove
                         if (clickedSpot.isEmpty()){
@@ -612,16 +595,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         fromSpot.setPiece(null);
                         displayBoard[xfrom][yfrom].setBackgroundResource(0);
                         //System.out.println("moved piece has previous y change of " + dest piece.getPreviousChange());
-                        if (whiteTurn && isKingInCheck(0,findKingPosition(0))) {
-                            System.out.println("Illegal move, try again");
+                        if (whiteTurn && isKingInCheck(0,findKingPosition(0, chessBoard), chessBoard)) {
+                            Log.d("ChessApp","Illegal move, try again");
                             fromSpot.setPiece(mover);
                             displayBoard[xfrom][yfrom].setBackgroundResource(getResource(mover));
                             clickedSpot.setPiece(destPiece);
                             displayBoard[xto][yto].setBackgroundResource(getResource(destPiece));
                             return;
                         }
-                        else if (!whiteTurn && isKingInCheck(1,findKingPosition(1))) {
-                            System.out.println("Illegal move, try again");
+                        else if (!whiteTurn && isKingInCheck(1,findKingPosition(1, chessBoard), chessBoard)) {
+                            Log.d("ChessApp","Illegal move, try again");
                             fromSpot.setPiece(mover);
                             displayBoard[xfrom][yfrom].setBackgroundResource(getResource(mover));
                             clickedSpot.setPiece(destPiece);
@@ -638,12 +621,143 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }else {
                         displayBoardBg[xfrom][yfrom].setBackgroundResource(R.color.colorBoardLight);
                     }
+                    if (!isKingInCheck(currColor, findKingPosition(currColor, chessBoard), chessBoard)){
+                        Spot kingSpot = findKingPosition(currColor, chessBoard);
+                        if ((kingSpot.getXCoordinate() + kingSpot.getYCoordinate()) % 2 == 0) {
+                            displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
+                        } else {
+                            displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardLight);
+                        }
+                    }
                     firstClick = true;
                     whiteTurn = whiteTurn ? false : true; //switch colors
 
                 }
+        }
+        if (firstClick) {
+            if (whiteTurn) {
+                //System.out.println();
+                boolean check = isKingInCheck(0, findKingPosition(0, chessBoard), chessBoard);
+                Spot kingSpot = findKingPosition(0, chessBoard);
+                if (check) {
+                    displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorKingInDanger);
+                    boolean checkmate = isCheckMate(0, chessBoard);
+                    if (checkmate) {
+                        gameOver.setText("Black Wins!");
+                        gameOver.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.d("ChessApp", "White King in Check");
+                    }
+                } else {
+                    if ((kingSpot.getXCoordinate() + kingSpot.getYCoordinate()) % 2 == 0) {
+                        displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
+                    } else {
+                        displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardLight);
+                    }
+                }
+                Log.d("ChessApp", "White's move: ");
+
+            } else {
+                System.out.println();
+                boolean check = isKingInCheck(1, findKingPosition(1, chessBoard), chessBoard);
+                Spot kingSpot = findKingPosition(1, chessBoard);
+                if (check) {
+                    displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorKingInDanger);
+                    boolean checkmate = isCheckMate(1, chessBoard);
+                    if (checkmate) {
+                        gameOver.setText("White Wins!");
+                        gameOver.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.d("ChessApp", "Black King in Check");
+                    }
+                } else {
+                    if ((kingSpot.getXCoordinate() + kingSpot.getYCoordinate()) % 2 == 0) {
+                        displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardDark);
+                    } else {
+                        displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorBoardLight);
+                    }
+                }
+                Log.d("ChessApp", "Black's Move");
             }
-        }*/
+        }
+
+    }
+    public void pawnPick(View v){
+        int currColor = whiteTurn ? 1 : 0; //ik its swapped for turn here idk why but it works
+        switch (v.getId()){
+            case R.id.pawn2queen :
+                chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setPiece(new Queen(currColor));
+                if (!whiteTurn){
+                    displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.wqueen);
+                }else{
+                    displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.bqueen);
+                }
+                break;
+            case R.id.pawn2rook :
+                chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setPiece(new Rook(currColor));
+                if (!whiteTurn){
+                    displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.wrook);
+                }else{
+                    displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.brook);
+                }
+                break;
+            case R.id.pawn2bishop :
+                chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setPiece(new Bishop(currColor));
+                if (!whiteTurn){
+                    displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.wbishop);
+                }else{
+                    displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.bbishop);
+                }
+                break;
+            case R.id.pawn2knight :
+                chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setPiece(new Knight(currColor));
+                if (!whiteTurn){
+                    displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.wknight);
+                }else{
+                    displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.bknight);
+                }
+                break;
+        }
+        pawnPromoer.setVisibility(View.INVISIBLE);
+
+    }
+    private boolean noValidMoves(ChessPiece piece){
+        for (int i=0; i<8; i++){
+            for (int j=0; j<8; j++){
+                //Log.d("ChessApp", "Now checking valid move to (" + i + "," + j + ")");
+                if (piece.validMoveWithoutCheck(chessBoard, clickedSpot, chessBoard.grid[i][j])){
+                    Log.d("ChessApp", "Valid move to (" + i + "," + j + ")");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean canBlockCheck(Spot currSpot){
+        int currColor = whiteTurn ? 0 : 1;
+        for (int a=0;a<8;a++) {
+            for (int b=0;b<8;b++) {
+                Spot newPosition=chessBoard.grid[b][a];
+                ChessPiece newPositionPiece=newPosition.getPiece();
+                ChessPiece current = currSpot.getPiece();
+                if (current.validMoveWithoutCheck(chessBoard, currSpot, newPosition) && chessBoard.isPathEmpty(currSpot, newPosition)) {
+
+
+                    newPosition.setPiece(current);
+                    currSpot.setPiece(null);
+                    if (!isKingInCheck(currColor,findKingPosition(currColor, chessBoard), chessBoard)) {
+                        //System.out.println("The piece is " + current.getPieceName() + " and move is " + newPosition.getXCoordinate() + "," + newPosition.getYCoordinate());
+                        ;									currSpot.setPiece(current);
+                        newPosition.setPiece(newPositionPiece);
+                        return true;
+                    }
+                }
+                currSpot.setPiece(current);
+                newPosition.setPiece(newPositionPiece);
+            }
+        }
+        return false;
     }
     private int getResource(ChessPiece piece){
         if (whiteTurn){

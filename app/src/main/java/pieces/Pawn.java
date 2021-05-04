@@ -77,13 +77,13 @@ public class Pawn extends ChessPiece{
 
 		if (board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()].isEmpty() && xChange == 1 && ((yChange==1 && color == 1) || (yChange == -1 && color == 0))) { //potential en passant
 			if (pieceColor == 0){ //white turn
-				if (board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()+1].getPiece().equals("bp") && board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()+1].getPiece().previousChange == 2) {
+				if (!board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()+1].isEmpty() && board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()+1].getPiece().equals("bp") && board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()+1].getPiece().previousChange == 2) {
 					enPassant = true;
 					//System.out.println("enPassant has been set");
 					return true;
 				}
 			}else { //black turn
-				if (board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()-1].getPiece().equals("wp") && board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()-1].getPiece().previousChange == 2){
+				if (!board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()-1].isEmpty() && board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()-1].getPiece().equals("wp") && board.grid[endPosition.getXCoordinate()][endPosition.getYCoordinate()-1].getPiece().previousChange == 2){
 					enPassant = true;
 					//System.out.println("enPassant has been set");
 					return true;

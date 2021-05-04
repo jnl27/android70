@@ -1,9 +1,12 @@
 package chess;
 
+import android.util.Log;
+
 import java.util.*;
 import pieces.*;
 import static pieces.King.castledK;
 import static pieces.King.castledQ;
+import com.example.androidchess70.MainActivity.*;
 
 /**
  * Chess class contains the main method and is where the game is running from and ends.
@@ -15,7 +18,6 @@ public class Chess {
 	/**
 	 * Board the chessBoard by which the game is played
 	 */
-	public static Board chessBoard;
 	/**
 	 * boolean whiteTurn to display if it is white's turn or not
 	 */
@@ -79,7 +81,7 @@ public class Chess {
 	 * setUpGame is a method which resets/sets up the chessboard and the pieces in the right place
 	 * It takes no parameters and does not have a return type.
 	 */
-	public static void setUpGame() {
+	public static void setUpGame(Board chessBoard) {
 		chessBoard = new Board();
 		chessBoard.drawBoard();
 	}
@@ -92,7 +94,7 @@ public class Chess {
 	 * The method does not have a return type.
 	 */
 	
-	public static void newBoardState(String input) {
+	public static void newBoardState(String input, Board chessBoard) {
 		String[] tokens = input.trim().toLowerCase().split("\\s+");
 		if (tokens.length == 0 || tokens.length > 3) {
 			System.out.println("Illegal move, try again");
@@ -206,13 +208,13 @@ public class Chess {
 					destSpot.setPiece(mover);
 					currSpot.setPiece(null);
 					//System.out.println("moved piece has previous y change of " + destSpot.getPiece().getPreviousChange());
-					if (whiteTurn && isKingInCheck(0,findKingPosition(0))) {
+					if (whiteTurn && isKingInCheck(0,findKingPosition(0, chessBoard), chessBoard)) {
 						System.out.println("Illegal move, try again");
 						currSpot.setPiece(mover);
 						destSpot.setPiece(destPiece);
 						return;
 					}
-					else if (!whiteTurn && isKingInCheck(1,findKingPosition(1))) {
+					else if (!whiteTurn && isKingInCheck(1,findKingPosition(1, chessBoard), chessBoard)) {
 						System.out.println("Illegal move, try again");
 						currSpot.setPiece(mover);
 						destSpot.setPiece(destPiece);
@@ -271,7 +273,7 @@ public class Chess {
 	 * @param kingPosition   The position which will be checked to see if king is/will be in check
 	 * @return    True if king is/will be in check, false otherwise
 	 */
-   	public static boolean isKingInCheck(int color, Spot kingPosition) {
+   	public static boolean isKingInCheck(int color, Spot kingPosition, Board chessBoard) {
 		if (color==0) {   // White's move
 	
 		for (int i=0;i<8;i++) {
@@ -299,8 +301,8 @@ public class Chess {
    	 * @param color   The color (0 white/1 black) of the king
    	 * @return    True if the King is in checkmate, false otherwise
    	 */
-	public static boolean isCheckMate(int color) {
-		Spot kingPosition=findKingPosition(color);
+	public static boolean isCheckMate(int color, Board chessBoard) {
+		Spot kingPosition=findKingPosition(color, chessBoard);
 	
 		int[] xDirection=new int[] {-1,0,1,-1,1,-1,0,1};
 		int[] yDirection=new int[] {-1,-1,-1,0,0,1,1,1};
@@ -314,12 +316,12 @@ public class Chess {
 				}
 				Spot endPosition=chessBoard.grid[newX][newY];
 				if (kingPosition.getPiece().validMoveWithoutCheck(chessBoard, kingPosition, endPosition)) {
-					if (!isKingInCheck(color,endPosition)) {
+					if (!isKingInCheck(color,endPosition, chessBoard)) {
 						return false;
 				}
 			}
 		}
-			if (!validMoves(color)) {
+			if (!validMoves(color, chessBoard)) {
 				return true;
 			}
 
@@ -331,12 +333,13 @@ public class Chess {
 	 * @param color   The color (black/white) of the king
 	 * @return        The Spot the King currently resides in
 	 */
-	public static Spot findKingPosition(int color) {
+	public static Spot findKingPosition(int color, Board chessBoard) {
 		Spot kingPosition=null;
 		if (color==0) {
 		for (int i=0;i<8;i++) {
 			for (int j=0;j<8;j++) {
-				if (chessBoard.grid[j][i].getPiece()!=null && chessBoard.grid[j][i].getPiece().getPieceName().equals("wK")) {
+				//Log.d("ChessApp", "Now Checking Spot (" + chessBoard.grid[j][i].getXCoordinate() + "," + chessBoard.grid[j][i].getYCoordinate() +")");
+				if (!chessBoard.grid[j][i].isEmpty() && chessBoard.grid[j][i].getPiece().getPieceName().equals("wK")) {
 					kingPosition=chessBoard.grid[j][i];
 					break;
 				}
@@ -347,7 +350,8 @@ public class Chess {
 		else if (color==1) {
 			for (int i=0;i<8;i++) {
 				for (int j=0;j<8;j++) {
-					if (chessBoard.grid[j][i].getPiece()!=null && chessBoard.grid[j][i].getPiece().getPieceName().equals("bK")) {
+					//Log.d("ChessApp", "Now Checking Spot (" + i + "," + j +")");
+					if (!chessBoard.grid[j][i].isEmpty() && chessBoard.grid[j][i].getPiece().getPieceName().equals("bK")) {
 						kingPosition=chessBoard.grid[j][i];
 						break;
 					}
@@ -364,7 +368,7 @@ public class Chess {
 	 * @return       True if there are ways to block the check, false otherwise
 	 */
 	
-	public static boolean validMoves(int color) {
+	public static boolean validMoves(int color, Board chessBoard) {
 		String pieceToExclude="";
 		if (color==0) {
 			pieceToExclude="wK";
@@ -385,7 +389,7 @@ public class Chess {
 								
 								newPosition.setPiece(current);
 								chessBoard.grid[j][i].setPiece(null);
-								if (!isKingInCheck(color,findKingPosition(color))) {
+								if (!isKingInCheck(color,findKingPosition(color, chessBoard), chessBoard)) {
 									//System.out.println("The piece is " + current.getPieceName() + " and move is " + newPosition.getXCoordinate() + "," + newPosition.getYCoordinate());
 ;									chessBoard.grid[j][i].setPiece(current);
 									newPosition.setPiece(newPositionPiece);

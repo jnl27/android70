@@ -1000,6 +1000,85 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.135" />
+        app:layout_constraintVertical_bias="0.0" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="35sp"
+        android:id="@+id/pawnPromoer"
+        android:background="#63034C17"
+        >
+
+        <TextView
+            android:text="Queen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/pawn2queen"
+            android:textSize="45sp"
+            android:padding="5sp"
+            android:layout_margin="5sp"
+            android:drawableLeft="@drawable/wqueen"
+            android:drawableRight="@drawable/bqueen"
+            android:textAlignment="center"
+            android:background="#ffffff"
+            android:textColor="#0c0c0c"
+            android:onClick="pawnPick"
+            android:elevation="6dp"/>
+
+        <TextView
+            android:text="Bishop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/pawn2bishop"
+            android:textSize="35sp"
+            android:padding="5sp"
+            android:layout_margin="5sp"
+            android:drawableLeft="@drawable/wbishop"
+            android:drawableRight="@drawable/bbishop"
+            android:textAlignment="center"
+            android:background="#ffffff"
+            android:textColor="#0c0c0c"
+            android:onClick="pawnPick"
+            android:elevation="6dp"/>
+
+        <TextView
+            android:text="Rook"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/pawn2rook"
+            android:textSize="35sp"
+            android:padding="5sp"
+            android:layout_margin="5sp"
+            android:drawableRight="@drawable/brook"
+            android:drawableLeft="@drawable/wrook"
+            android:textAlignment="center"
+            android:background="#ffffff"
+            android:textColor="#0c0c0c"
+            android:onClick="pawnPick"
+            android:elevation="6dp"/>
+
+        <TextView
+            android:text="Knight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/pawn2knight"
+            android:textSize="35sp"
+            android:padding="5sp"
+            android:layout_margin="5sp"
+            android:drawableLeft="@drawable/wknight"
+            android:drawableRight="@drawable/bknight"
+            android:textAlignment="center"
+            android:background="#ffffff"
+            android:textColor="#0c0c0c"
+            android:onClick="pawnPick"
+            android:elevation="6dp"/>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

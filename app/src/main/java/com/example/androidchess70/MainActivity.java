@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import chess.*;
 import pieces.*;
 
-import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,9 +22,11 @@ import static chess.Chess.findKingPosition;
 import static chess.Chess.isCheckMate;
 import static chess.Chess.isKingInCheck;
 import static chess.Chess.setUpGame;
+
 import static chess.Chess.validMoves;
 import static pieces.King.castledK;
 import static pieces.King.castledQ;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     public static Board chessBoard;
@@ -36,9 +37,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public Spot fromSpot;
     public boolean firstClick;
     public int numMoves = 0;
-    public ArrayList<Spot> prevMoves = new ArrayList<>();
+    public ArrayList<String> prevMoves;
     public TextView gameOver;
     public LinearLayout pawnPromoer;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +58,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setUpBoardViews();
 
         gameOver = findViewById(R.id.gameOver);
+
         pawnPromoer = findViewById(R.id.pawnPromoer);
+
     }
 
     @Override

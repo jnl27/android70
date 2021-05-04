@@ -6,48 +6,44 @@
     android:layout_height="match_parent">
 
     <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:id="@+id/recordedGamesList"
-        android:layout_marginTop="14dp"
+        android:layout_width="match_parent"
+        android:layout_height="510dp"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/dateSort"
-        android:layout_alignParentStart="true" />
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="19dp" />
 
     <Button
         android:id="@+id/nameSort"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/replayGame"
-        android:layout_alignBottom="@+id/replayGame"
+        android:layout_alignBaseline="@+id/dateSort"
+        android:layout_alignBottom="@+id/dateSort"
+        android:layout_marginBottom="7dp"
+        android:layout_marginStart="-45dp"
         android:layout_toEndOf="@+id/newGame"
         android:text="Sort by Name" />
+
+    <Button
+        android:id="@+id/newGame"
+        android:layout_width="150dp"
+        android:layout_height="75dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+
+        android:onClick="onClick"
+        android:text="Play"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/dateSort"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/nameSort"
-        android:layout_below="@+id/nameSort"
-        android:text="Sort by Date" />
-
-    <Button
-        android:id="@+id/newGame"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="onClick"
-        android:padding="15dp"
-        android:text="Play"
-        android:textSize="16sp" />
-
-    <Button
-        android:id="@+id/replayGame"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_below="@+id/newGame"
         android:layout_marginTop="23dp"
-        android:text="Playback Game"
+        android:text="Sort by date"
         android:translationX="15dp" />
 
 </RelativeLayout>

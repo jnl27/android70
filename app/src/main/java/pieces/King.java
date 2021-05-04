@@ -1,8 +1,10 @@
 package pieces;
+
 import android.util.Log;
 
 import chess.Board;
 import chess.Spot;
+
 
 /**
  * The King class is an extension of the ChessPiece class and creates a King Piece.

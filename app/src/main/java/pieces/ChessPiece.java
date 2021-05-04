@@ -1,6 +1,6 @@
 package pieces;
-import chess.Board;
-import chess.Spot;
+import chess.*;
+
 
 /**
  * ChessPiece is the abstract class for the Chess game and it specifies the functionality of every Chess piece.

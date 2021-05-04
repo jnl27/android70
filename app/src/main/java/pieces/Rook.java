@@ -1,6 +1,5 @@
 package pieces;
-import chess.Board;
-import chess.Spot;
+import chess.*;
 
 /**
  * The Rook class is an extension of the ChessPiece class and creates a Rook Piece.

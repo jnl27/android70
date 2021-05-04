@@ -1,6 +1,5 @@
 package pieces;
-import chess.Board;
-import chess.Spot;
+import chess.*;
 /**
  * The Queen class is an extension of the ChessPiece class and creates a Queen Piece.
  * @author Param Thakker

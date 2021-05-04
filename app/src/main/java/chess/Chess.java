@@ -11,10 +11,11 @@ import com.example.androidchess70.MainActivity.*;
 /**
  * Chess class contains the main method and is where the game is running from and ends.
  * @author Param Thakker
- * @author Jonathan Lu 
+ * @author Jonathan Lu
  */
 
 public class Chess {
+
 	/**
 	 * Board the chessBoard by which the game is played
 	 */
@@ -27,14 +28,15 @@ public class Chess {
 	 */
 	static boolean askDraw=false;
 
+
 	/*public static void main(String[] args) {
 		setUpGame();
 		Scanner sc = new Scanner(System.in);
 		String input = "";
 
-		
+
 		while (true) { //while not checkmate
-			
+
 			if (whiteTurn) {
 				System.out.println();
 				boolean check=isKingInCheck(0,findKingPosition(0));
@@ -50,7 +52,7 @@ public class Chess {
 					}
 				}
 				System.out.print("White's move: ");
-				
+
 			}
 			else {
 				System.out.println();
@@ -66,16 +68,17 @@ public class Chess {
 						System.out.println("Check");
 					}
 				}
-				
+
 				System.out.print("Black's move: ");
 			}
 
-			
+
 			input = sc.nextLine();
 			newBoardState(input);
 		}
-		
+
 	}*/
+
 	
 	/**
 	 * setUpGame is a method which resets/sets up the chessboard and the pieces in the right place
@@ -421,4 +424,5 @@ public class Chess {
 	 *|wP|wP|wP|wP|wP|wP|wP|wP| 6
 	 *|wR|wN|wB|wQ|wK|wB|wN|wR| 7  */
 	
+
 }

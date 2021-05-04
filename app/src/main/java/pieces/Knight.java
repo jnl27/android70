@@ -1,6 +1,5 @@
 package pieces;
-import chess.Board;
-import chess.Spot;
+import chess.*;
 
 /**
  * The Knight class is an extension of the ChessPiece class and creates a Knight Piece.

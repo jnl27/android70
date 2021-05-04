@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import chess.*;
 import pieces.*;
 
+import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -68,9 +70,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             case R.id.resign:
                 Toast.makeText(this, "resign selected", Toast.LENGTH_SHORT).show();
+                if (!whiteTurn) {
+                    gameOver.setText("White Wins!");
+                }else{
+                    gameOver.setText("Black wins!");
+                }
+                gameOver.setVisibility(View.VISIBLE);
+                gameOver();
                 return true;
             case R.id.draw:
                 Toast.makeText(this, "draw selected", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(R.string.dialog_message)
+                        .setTitle(R.string.draw);
+
+                builder.setPositiveButton(R.string.draw, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        gameOver.setText(R.string.draw);
+                        gameOver.setVisibility(View.VISIBLE);
+                        gameOver();
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        return;
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

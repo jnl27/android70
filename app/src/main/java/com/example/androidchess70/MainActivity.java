@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ChessPiece current=null;
     ChessPiece before=null;
     boolean draw=false;
+    boolean lastAI=false;
 
 
     public Board prevChessBoard;
@@ -104,22 +105,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         switch(item.getItemId()){
             case R.id.undo:
-                Toast.makeText(this, "undo selected", Toast.LENGTH_SHORT).show();
-                String[] split=start.split(",");
-                String startPosition = split[0];
-                String endPosition = split[1];
-                int startingX = Character.getNumericValue(startPosition.charAt(0));
-                int startingY = Character.getNumericValue(startPosition.charAt(1));
-                int endingX = Character.getNumericValue(endPosition.charAt(0));
-                int endingY = Character.getNumericValue(endPosition.charAt(1));
-                //ChessPiece mover = chessBoard.grid[startingX][startingY].getPiece();
-                Spot destSpot = chessBoard.grid[endingX][endingY];
-              //  destSpot.setPiece(mover);
-                displayBoard[startingX][startingY].setBackgroundResource(getResource(current));
-                chessBoard.grid[startingX][startingY].setPiece(current);
-                displayBoard[endingX][endingY].setBackgroundResource(getResource(before));
-                chessBoard.grid[endingX][endingY].setPiece(before);
-                prevMoves.remove(prevMoves.size()-1);
+                if (lastAI){
+                    Toast.makeText(this, "undo not possible for AI moves", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+               else {
+                    Toast.makeText(this, "undo selected", Toast.LENGTH_SHORT).show();
+                    String[] split = start.split(",");
+                    String startPosition = split[0];
+                    String endPosition = split[1];
+                    int startingX = Character.getNumericValue(startPosition.charAt(0));
+                    int startingY = Character.getNumericValue(startPosition.charAt(1));
+                    int endingX = Character.getNumericValue(endPosition.charAt(0));
+                    int endingY = Character.getNumericValue(endPosition.charAt(1));
+                    //ChessPiece mover = chessBoard.grid[startingX][startingY].getPiece();
+                    Spot destSpot = chessBoard.grid[endingX][endingY];
+                    //  destSpot.setPiece(mover);
+                    displayBoard[startingX][startingY].setBackgroundResource(getResource(current));
+                    chessBoard.grid[startingX][startingY].setPiece(current);
+                    displayBoard[endingX][endingY].setBackgroundResource(getResource(before));
+                    chessBoard.grid[endingX][endingY].setPiece(before);
+                    prevMoves.remove(prevMoves.size() - 1);
+                    current=null;
+                    before=null;
 
 
 
@@ -142,8 +150,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         clearBoardSelections();
                     }
                 }*/
-                whiteTurn = whiteTurn ? false : true; //need this anyway so i kept it
-                return true;
+                    whiteTurn = whiteTurn ? false : true; //need this anyway so i kept it
+                    return true;
+               }
             case R.id.ai:
                 Toast.makeText(this, "ai selected", Toast.LENGTH_SHORT).show();
                 //pick a random piece
@@ -181,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 displayBoard[xfrom][yfrom].setBackgroundResource(0);
 
                 whiteTurn = whiteTurn ? false : true;
+                lastAI=true;
                 return true;
             case R.id.resign:
                 Toast.makeText(this, "resign selected", Toast.LENGTH_SHORT).show();
@@ -909,6 +919,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("ChessApp", "Black's Move");
             }
         }
+        lastAI=false;
         //Log.d("Third move outside",thirdMove);
         thirdMove=null;
     }

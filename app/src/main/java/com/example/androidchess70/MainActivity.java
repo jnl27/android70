@@ -869,10 +869,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
     private boolean noValidMoves(Spot selectedSpot, ChessPiece piece){
+        int currColor = whiteTurn ? 0 : 1;
         for (int i=0; i<8; i++){
             for (int j=0; j<8; j++){
                 //Log.d("ChessApp", "Now checking valid move to (" + i + "," + j + ")");
                 if (piece.validMoveWithoutCheck(chessBoard, selectedSpot, chessBoard.grid[i][j]) && chessBoard.isPathEmpty(selectedSpot, chessBoard.grid[i][j])){
+                    if (piece instanceof King && ((selectedSpot.getXCoordinate() == 4 && selectedSpot.getYCoordinate() == 7 && currColor == 0) || (selectedSpot.getXCoordinate() == 4 && selectedSpot.getYCoordinate() == 0 && currColor == 1))){
+                        castledK = false;
+                        castledQ = false;
+                        piece.setFirst(true);
+                        Log.d("ChessApp", "Castling flags reset!");
+                    }
+                    if (piece instanceof Pawn){
+                        ((Pawn) piece).enPassant = false;
+                    }
                     Log.d("ChessApp", "Valid move to (" + i + "," + j + ")");
                     return false;
                 }
@@ -889,7 +899,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ChessPiece newPositionPiece=newPosition.getPiece();
                 ChessPiece current = currSpot.getPiece();
                 if (current.validMoveWithoutCheck(chessBoard, currSpot, newPosition) && chessBoard.isPathEmpty(currSpot, newPosition)) {
-
+                    if (current instanceof King && ((currSpot.getXCoordinate() == 4 && currSpot.getYCoordinate() == 7 && currColor == 0) || (currSpot.getXCoordinate() == 4 && currSpot.getYCoordinate() == 0 && currColor == 1))){ //dangerous
+                        castledK = false;
+                        castledQ = false;
+                        current.setFirst(true);
+                        Log.d("ChessApp", "Castling flags reset!");
+                    }
 
                     newPosition.setPiece(current);
                     currSpot.setPiece(null);

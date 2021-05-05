@@ -7,6 +7,7 @@ import pieces.*;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,12 +38,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static boolean whiteTurn;
     public TextView[][] displayBoard;
     public TextView[][] displayBoardBg;
+
+    public Board prevChessBoard;
+
     public Spot clickedSpot;
     public Spot fromSpot;
     public boolean firstClick;
     public int numMoves = 0;
     public ArrayList<String> prevMoves;
     public TextView gameOver;
+    public boolean isGameOver = false;
     public LinearLayout pawnPromoer;
     public Button deselect;
 
@@ -56,7 +61,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         displayBoardBg = new TextView[8][8];
         clickedSpot = chessBoard.grid[0][0];
         fromSpot = chessBoard.grid[0][0];
+        prevChessBoard = chessBoard;
         firstClick = true;
+        isGameOver = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpBoardViews();
@@ -69,12 +76,69 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (isGameOver){
+            gameOver();
+            return true;
+        }
         switch(item.getItemId()){
             case R.id.undo:
                 Toast.makeText(this, "undo selected", Toast.LENGTH_SHORT).show();
+                /* PREV UNDO CODE
+                for (int i=0; i<8; i++){
+                    for (int j=0; j<8; j++){
+                        prevChessBoard.grid[i][j] = chessBoard.grid[i][j];
+                        if (prevChessBoard.grid[i][j].getPiece() == null){
+                            Log.d("ChessApp", " ");
+                        }else{
+                            Log.d("ChessApp", prevChessBoard.grid[i][j].getPiece().getPieceName() + " ");
+                        }
+                    }
+                }
+                for (int i=0; i<8; i++){
+                    for (int j=0; j<8; j++){
+                        chessBoard.grid[i][j] = prevChessBoard.grid[i][j];
+                        displayBoard[i][j].setBackgroundResource(getResource(chessBoard.grid[i][j].getPiece()));
+                        clearBoardSelections();
+                    }
+                }*/
+                whiteTurn = whiteTurn ? false : true; //need this anyway so i kept it
                 return true;
             case R.id.ai:
                 Toast.makeText(this, "ai selected", Toast.LENGTH_SHORT).show();
+                //pick a random piece
+                int currColor = whiteTurn ? 0 : 1;
+                int xfrom = 0;
+                int yfrom = 0;
+                while (chessBoard.grid[xfrom][yfrom].isEmpty() || chessBoard.grid[xfrom][yfrom].getPiece().getColor() != currColor || noValidMoves(chessBoard.grid[xfrom][yfrom], chessBoard.grid[xfrom][yfrom].getPiece())){ //find a piece that belongs to the current player
+                    xfrom = (int)Math.floor(Math.random()*8);
+                    yfrom = (int)Math.floor(Math.random()*8);
+                }
+                ChessPiece mover = chessBoard.grid[xfrom][yfrom].getPiece();
+                Log.d("ChessApp", "Piece picked was " + chessBoard.grid[xfrom][yfrom].getPiece().getPieceName() + " at (" + xfrom + "," + yfrom + ")");
+                //generate random spots and check if theres a valid move there, if so move to there
+                int xto = 0;
+                int yto = 0;
+                while (!mover.validMoveWithoutCheck(chessBoard, chessBoard.grid[xfrom][yfrom], chessBoard.grid[xto][yto]) || !chessBoard.isPathEmpty(chessBoard.grid[xfrom][yfrom], chessBoard.grid[xto][yto])){
+                    xto = (int)Math.floor(Math.random()*8);
+                    yto = (int)Math.floor(Math.random()*8);
+                }
+                Log.d("ChessApp", "Valid moving to (" + xto + "," + yto + ")");
+
+                //spots selected, move piece
+                mover.setFirst(false);
+                if (mover instanceof Pawn && ((whiteTurn && yto == 0) || (!whiteTurn && yto == 7))){ //pawn promo
+                    Queen promoQueen = new Queen(currColor);
+                    chessBoard.grid[xto][yto].setPiece(promoQueen);
+                    displayBoard[xto][yto].setBackgroundResource(getResource(promoQueen));
+                    Log.d("ChessApp","AI PAWN PROMO @ (" + xto + "," + yto + ")");
+                }else{
+                    chessBoard.grid[xto][yto].setPiece(mover);
+                    displayBoard[xto][yto].setBackgroundResource(getResource(mover));
+                }
+                chessBoard.grid[xfrom][yfrom].setPiece(null);
+                displayBoard[xfrom][yfrom].setBackgroundResource(0);
+
+                whiteTurn = whiteTurn ? false : true;
                 return true;
             case R.id.resign:
                 Toast.makeText(this, "resign selected", Toast.LENGTH_SHORT).show();
@@ -330,8 +394,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     public void deselect(View v){
+        int currColor = whiteTurn ? 0 : 1;
         firstClick = true;
         clearBoardSelections();
+        if (isKingInCheck(currColor, findKingPosition(currColor, chessBoard), chessBoard)){
+            Spot kingSpot = findKingPosition(currColor, chessBoard);
+            displayBoardBg[kingSpot.getXCoordinate()][kingSpot.getYCoordinate()].setBackgroundResource(R.color.colorKingInDanger);
+        }
         deselect.setVisibility(View.INVISIBLE);
         fromSpot = chessBoard.grid[0][0];
     }
@@ -546,7 +615,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(this, "wrong color!", Toast.LENGTH_SHORT).show();
                 Log.d("ChessApp", "wrong color!");
                 return;
-            }else if (noValidMoves(chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece())){
+            }else if (noValidMoves(clickedSpot, chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece())){
                 Toast.makeText(this, "No valid moves for piece " + chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece().getPieceName(), Toast.LENGTH_SHORT).show();
                 Log.d("ChessApp", "No valid moves for piece " + chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].getPiece().getPieceName());
                 return;
@@ -568,10 +637,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 fromSpot = clickedSpot;
             }
         }else{ //second selection
-
                 if (fromSpot.getPiece().validMoveWithoutCheck(chessBoard, fromSpot, clickedSpot) && chessBoard.isPathEmpty(fromSpot, clickedSpot)){ //valid move to empty space
                     boolean pawnPromo = false;
                     boolean enPassant = false;
+                    /*for (int i=0; i<8; i++){ PREV UNDO CODE
+                        for (int j=0; j<8; j++){
+                            prevChessBoard.grid[i][j] = chessBoard.grid[i][j];
+                            if (prevChessBoard.grid[i][j].getPiece() == null){
+                                Log.d("ChessApp", " ");
+                            }else{
+                                Log.d("ChessApp", prevChessBoard.grid[i][j].getPiece().getPieceName() + " ");
+                            }
+                        }
+                    }*/
                     //valid move
                     //CASTLING
                     if (castledK) {
@@ -790,11 +868,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pawnPromoer.setVisibility(View.INVISIBLE);
 
     }
-    private boolean noValidMoves(ChessPiece piece){
+    private boolean noValidMoves(Spot selectedSpot, ChessPiece piece){
         for (int i=0; i<8; i++){
             for (int j=0; j<8; j++){
                 //Log.d("ChessApp", "Now checking valid move to (" + i + "," + j + ")");
-                if (piece.validMoveWithoutCheck(chessBoard, clickedSpot, chessBoard.grid[i][j]) && chessBoard.isPathEmpty(clickedSpot, chessBoard.grid[i][j])){
+                if (piece.validMoveWithoutCheck(chessBoard, selectedSpot, chessBoard.grid[i][j]) && chessBoard.isPathEmpty(selectedSpot, chessBoard.grid[i][j])){
                     Log.d("ChessApp", "Valid move to (" + i + "," + j + ")");
                     return false;
                 }
@@ -829,7 +907,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
     private int getResource(ChessPiece piece){
-        if (whiteTurn){
+        if (piece != null && piece.getColor() == 0){
             if (piece instanceof Pawn){
                 return R.drawable.wpawn;
             }else if (piece instanceof Rook){
@@ -842,10 +920,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return R.drawable.wqueen;
             }else if (piece instanceof King){
                 return R.drawable.wking;
-            }else{
-                return 0;
             }
-        }else{
+        }else if (piece != null && piece.getColor() == 1){
             if (piece instanceof Pawn){
                 return R.drawable.bpawn;
             }else if (piece instanceof Rook){
@@ -858,12 +934,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return R.drawable.bqueen;
             }else if (piece instanceof King){
                 return R.drawable.bking;
-            }else{
-                return 0;
-            } 
+            }
         }
+        return 0;
     }
+
     public void gameOver(){
+        isGameOver = true;
         for (int i=0; i<8; i++){
             for (int j=0; j<8; j++){
                 displayBoard[j][i].setClickable(false);

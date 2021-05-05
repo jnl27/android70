@@ -144,14 +144,14 @@ public class King extends ChessPiece{
 		//black castling
 		if (color == 1){
 			//kings side
-			if (startPosition.getXCoordinate() == 4 && startPosition.getYCoordinate() == 0 && endPosition.getXCoordinate() == 6 && endPosition.getYCoordinate() == 0 && first && board.grid[7][0].getPiece().getPieceName().equals("bR") && board.grid[7][0].getPiece().first && board.grid[5][0].isEmpty() && board.grid[6][0].isEmpty()){
+			if (startPosition.getXCoordinate() == 4 && startPosition.getYCoordinate() == 0 && endPosition.getXCoordinate() == 6 && endPosition.getYCoordinate() == 0 && first && !board.grid[7][0].isEmpty() && board.grid[7][0].getPiece().getPieceName().equals("bR") && board.grid[7][0].getPiece().first && board.grid[5][0].isEmpty() && board.grid[6][0].isEmpty()){
 				Log.d("ChessApp","**black castle kings side**");
 				castledK = true;
 				first = false;
 				return true;
 			}
 			//queens side
-			if (startPosition.getXCoordinate() == 4 && startPosition.getYCoordinate() == 0 && endPosition.getXCoordinate() == 2 && endPosition.getYCoordinate() == 0 && first && board.grid[0][0].getPiece().getPieceName().equals("bR") && board.grid[0][0].getPiece().first && board.grid[1][0].isEmpty() && board.grid[2][0].isEmpty() && board.grid[3][0].isEmpty()){
+			if (startPosition.getXCoordinate() == 4 && startPosition.getYCoordinate() == 0 && endPosition.getXCoordinate() == 2 && endPosition.getYCoordinate() == 0 && first && !board.grid[0][0].isEmpty() && board.grid[0][0].getPiece().getPieceName().equals("bR") && board.grid[0][0].getPiece().first && board.grid[1][0].isEmpty() && board.grid[2][0].isEmpty() && board.grid[3][0].isEmpty()){
 				Log.d("ChessApp", "**black castle queens side**");
 				castledQ = true;
 				first = false;

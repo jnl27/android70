@@ -22,7 +22,7 @@ public class Pawn extends ChessPiece{
 	/**
 	 * boolean enPassant stores whether or not an en passant move has been made
 	 */
-	boolean enPassant = false;
+	public boolean enPassant = false;
 	/**
 	 * Constructor with 1 argument
 	 *

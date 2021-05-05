@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -14,7 +15,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -36,13 +36,11 @@ public class HomePage extends AppCompatActivity {
         dateSort=(Button) findViewById(R.id.dateSort);
         nameSort=(Button) findViewById(R.id.nameSort);
         gamesListView=(ListView)findViewById(R.id.recordedGamesList);
+        LoadSaveData.context = getApplicationContext();
+        LoadSaveData.loadGameData();
 
 
 
-
-        //String[] games = new String[2];
-       // games[0]="trial|May 3 8:40 PM|White";
-       // games[1]="asort|May 3 11:30 PM|White";
 
        if(LoadSaveData.list != null) {
 
@@ -60,6 +58,7 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 GameSave gameData=LoadSaveData.list.get(i);
+                Log.d("Print",gameData.getMoves().toString());
                 Intent intent=new Intent(HomePage.this, GamePlaybackActivity.class);
                 intent.putExtra("moves",gameData.getMoves());
                 startActivity(intent);
@@ -156,7 +155,7 @@ public class HomePage extends AppCompatActivity {
         public int compare(GameSave o1, GameSave o2) {
             if(o1 != null && o2 != null)
             {
-                return o1.gameDate.compareTo(o2.gameDate);
+                return o2.gameDate.compareTo(o1.gameDate);
             }
             return 0;
         }

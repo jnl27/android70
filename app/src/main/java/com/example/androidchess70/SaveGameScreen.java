@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class SaveGameScreen extends AppCompatActivity {
 
@@ -24,13 +23,15 @@ public class SaveGameScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_save_game_screen);
-
+         list=new ArrayList<>();
          save = (Button)findViewById(R.id.saveButton);
          cancel = (Button)findViewById(R.id.cancelButton);
          name=(EditText) findViewById(R.id.gameName);
-        // list=new ArrayList<>();
-         String gameWinner = getIntent().getExtras().getString("winner");
-         list = getIntent().getStringArrayListExtra("moves");
+
+        Intent intent = getIntent();
+
+        list=intent.getStringArrayListExtra("moves");
+        String gameWinner=intent.getStringExtra("winner");
 
 
         save.setOnClickListener(new View.OnClickListener() {

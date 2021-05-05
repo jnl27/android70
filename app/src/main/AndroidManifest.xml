@@ -9,7 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidChess70">
-        <activity android:name=".GamePlaybackActivity"></activity>
+        <activity android:name=".GamePlaybackActivity">
+
+        </activity>
         <activity android:name=".SaveGameScreen" />
         <activity android:name=".HomePage">
             <intent-filter>

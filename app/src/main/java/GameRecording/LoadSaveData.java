@@ -2,6 +2,10 @@ package GameRecording;
 
 import android.content.Context;
 
+import android.content.Context;
+
+
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,7 +18,7 @@ import java.util.List;
 public class LoadSaveData implements Serializable {
     private static final long serialVersionUID = 8880762940869156565L;
 
-    public static List<GameSave> list;
+    public static ArrayList<GameSave> list;
     public static Context context;
 
     public static void loadGameData() {
@@ -23,7 +27,7 @@ public class LoadSaveData implements Serializable {
             try {
                 FileInputStream fileInputStream = context.openFileInput("data.dat");
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                list = (List<GameSave>) objectInputStream.readObject();
+                list = (ArrayList<GameSave>) objectInputStream.readObject();
                 objectInputStream.close();
                 fileInputStream.close();
             } catch(Exception e){
@@ -36,7 +40,7 @@ public class LoadSaveData implements Serializable {
 
     public static void saveGameData() {
         try {
-            FileOutputStream fileOutputStream = context.openFileOutput("data.dat", 0);
+            FileOutputStream fileOutputStream=context.openFileOutput("data.dat",0);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(list);
             objectOutputStream.close();

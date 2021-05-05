@@ -38,6 +38,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static boolean whiteTurn;
     public TextView[][] displayBoard;
     public TextView[][] displayBoardBg;
+    String start="";
+    ChessPiece current=null;
+    ChessPiece before=null;
+    boolean draw=false;
+
 
     public Board prevChessBoard;
 
@@ -49,7 +54,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public TextView gameOver;
     public boolean isGameOver = false;
     public LinearLayout pawnPromoer;
+    public int xStart;
+    public int xEnd;
+    public int yStart;
+    public int yEnd;
+
+
     public Button deselect;
+
+    public String thirdMove=null;
+
 
 
 
@@ -59,11 +73,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         whiteTurn = true;
         displayBoard = new TextView[8][8];
         displayBoardBg = new TextView[8][8];
+        xStart=0;
+        xEnd=0;
+        yEnd=0;
+        yStart=0;
         clickedSpot = chessBoard.grid[0][0];
         fromSpot = chessBoard.grid[0][0];
         prevChessBoard = chessBoard;
         firstClick = true;
+
         isGameOver = false;
+
+        prevMoves=new ArrayList<>();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpBoardViews();
@@ -83,6 +105,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(item.getItemId()){
             case R.id.undo:
                 Toast.makeText(this, "undo selected", Toast.LENGTH_SHORT).show();
+                String[] split=start.split(",");
+                String startPosition = split[0];
+                String endPosition = split[1];
+                int startingX = Character.getNumericValue(startPosition.charAt(0));
+                int startingY = Character.getNumericValue(startPosition.charAt(1));
+                int endingX = Character.getNumericValue(endPosition.charAt(0));
+                int endingY = Character.getNumericValue(endPosition.charAt(1));
+                //ChessPiece mover = chessBoard.grid[startingX][startingY].getPiece();
+                Spot destSpot = chessBoard.grid[endingX][endingY];
+              //  destSpot.setPiece(mover);
+                displayBoard[startingX][startingY].setBackgroundResource(getResource(current));
+                chessBoard.grid[startingX][startingY].setPiece(current);
+                displayBoard[endingX][endingY].setBackgroundResource(getResource(before));
+                chessBoard.grid[endingX][endingY].setPiece(before);
+                prevMoves.remove(prevMoves.size()-1);
+
+
+
+
                 /* PREV UNDO CODE
                 for (int i=0; i<8; i++){
                     for (int j=0; j<8; j++){
@@ -134,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }else{
                     chessBoard.grid[xto][yto].setPiece(mover);
                     displayBoard[xto][yto].setBackgroundResource(getResource(mover));
+                    prevMoves.add(Integer.toString(xfrom) + Integer.toString(yfrom) + "," + Integer.toString(xto) + Integer.toString(yto));
                 }
                 chessBoard.grid[xfrom][yfrom].setPiece(null);
                 displayBoard[xfrom][yfrom].setBackgroundResource(0);
@@ -160,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onClick(DialogInterface dialog, int id) {
                         gameOver.setText(R.string.draw);
                         gameOver.setVisibility(View.VISIBLE);
+                        draw=true;
                         gameOver();
                     }
                 });
@@ -322,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         displayBoard[7][7] = (TextView) findViewById(R.id.F77);
         displayBoardBg[7][7] = (TextView) findViewById(R.id.bg77);
 
-        for (int i=0; i<8; i++){ //colors switch in original setup, lazy fix
+        for (int i=0; i<8; i++) { //colors switch in original setup, lazy fix
             for (int j=0; j<8; j++){
                 if ((i+j)%2 == 0){
                     displayBoardBg[j][i].setBackgroundResource(R.color.colorBoardLight);
@@ -334,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         placePieces();
     }
 
-    private void placePieces(){
+    private void placePieces() {
         for (int i=0; i<8; i++){
             for (int j=0; j<8; j++){
                 ChessPiece currPiece = chessBoard.grid[i][j].getPiece();
@@ -561,6 +604,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 clickedSpot = chessBoard.grid[1][6];
                 break;
             case R.id.F26:
+
                 clickedSpot = chessBoard.grid[2][6];
                 break;
             case R.id.F36:
@@ -607,7 +651,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Log.d("ChessApp", "CURR COLOR: " + currColor + "\n CLICKED SPOT: (" + clickedSpot.getXCoordinate() + "," + clickedSpot.getYCoordinate() + ")\n CLICKED PIECE: " + clickedSpot.getPiece().getPieceName());
 
 
-        if (firstClick){
+        if (firstClick) {
             if (chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].isEmpty()) { //do nothing, invalid selection
                 Log.d("ChessApp", "empty select!");
                 return;
@@ -659,13 +703,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             displayBoard[5][7].setBackgroundResource(R.drawable.wrook);
                             chessBoard.grid[7][7].setPiece(null);
                             displayBoard[7][7].setBackgroundResource(0);
+                            prevMoves.add("47,67,77,57");
                         }else{
                             chessBoard.grid[5][0].setPiece(chessBoard.grid[7][0].getPiece());
                             displayBoard[5][0].setBackgroundResource(R.drawable.brook);
                             chessBoard.grid[7][0].setPiece(null);
                             displayBoard[7][0].setBackgroundResource(0);
+                            prevMoves.add("40,60,70,50");
                         }
-                        castledK = false;
+                       // castledK = false;
                     }
                     if (castledQ) {
                         if (whiteTurn){
@@ -674,13 +720,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             displayBoard[3][7].setBackgroundResource(R.drawable.wrook);
                             chessBoard.grid[0][7].setPiece(null);
                             displayBoard[0][7].setBackgroundResource(0);
+                            prevMoves.add("47,27,07,37");
+
                         }else{
                             chessBoard.grid[3][0].setPiece(chessBoard.grid[0][0].getPiece());
                             displayBoard[3][0].setBackgroundResource(R.drawable.brook);
                             chessBoard.grid[0][0].setPiece(null);
                             displayBoard[0][0].setBackgroundResource(0);
+                            prevMoves.add("40,20,00,30");
                         }
-                        castledQ = false;
+                      //  castledQ = false;
                     }
                     //remove piece from old Spot
 
@@ -692,8 +741,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int yto = clickedSpot.getYCoordinate();
                     int xfrom = fromSpot.getXCoordinate();
                     int yfrom = fromSpot.getYCoordinate();
+                    start=Integer.toString(xfrom) + Integer.toString(yfrom) + "," + Integer.toString(xto) + Integer.toString(yto);
+                    current=mover;
+                    before=destPiece;
 
                     mover.setFirst(false);
+                    //String thirdMove=null;
 
                     if (mover instanceof Pawn) { //pawn promo potential or enpassant
                         Pawn currPawn = (Pawn) mover;
@@ -702,7 +755,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 //WHITE PAWN PROMO dialog
                                 //	System.out.println("white's pawn has been promoted to " + toPromo);
                                 pawnPromoer.setVisibility(View.VISIBLE);
+
                                 pawnPromo = true;
+                               // Log.d("Third move inside",thirdMove);
+                                xStart=xfrom;
+                                yStart=yfrom;
+                                xEnd=xto;
+                                yEnd=yto;
+                                //prevMoves.add(Integer.toString(xfrom)+Integer.toString(yfrom)+ "," + Integer.toString(xto) + Integer.toString(yto) + "," + thirdMove);
                             }else if (currPawn.getEnPassant()){
                                 enPassant = true;
                                 //System.out.println("\nBAM! " + chessBoard.grid[xto][yto+1].getPiece().getPieceName() + " was enPassant captured by " + mover.getPieceName() + " @ (" + xto + ", " + (yto-1) +")");
@@ -710,6 +770,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 displayBoard[xto][yto+1].setBackgroundResource(0);
                                 clickedSpot.setPiece(mover);
                                 displayBoard[xto][yto].setBackgroundResource(R.drawable.wpawn);
+                                thirdMove=Integer.toString(xto)+Integer.toString(yto+1);
                             }
                         }else{
                             if (fromSpot.getYCoordinate() == 6){
@@ -717,6 +778,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 //	System.out.println("black's pawn has been promoted to " + toPromo);
                                 pawnPromoer.setVisibility(View.VISIBLE);
                                 pawnPromo = true;
+                                xStart=xfrom;
+                                yStart=yfrom;
+                                xEnd=xto;
+                                yEnd=yto;
+                              //  Log.d("Third move inside",thirdMove);
+                               // prevMoves.add(Integer.toString(xfrom)+Integer.toString(yfrom)+ "," + Integer.toString(xto) + Integer.toString(yto) + "," + thirdMove);
                             }else if (currPawn.getEnPassant()){
                                 enPassant = true;
                                 //System.out.println("\nBAM! " +chessBoard.grid[xto][yto-1].getPiece().getPieceName() + " was enPassant captured by " + mover.getPieceName() + " @ (" + xto + ", " + (yto+1) +")");
@@ -724,6 +791,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 displayBoard[xto][yto-1].setBackgroundResource(0);
                                 clickedSpot.setPiece(mover);
                                 displayBoard[xto][yto].setBackgroundResource(R.drawable.bpawn);
+                                thirdMove=Integer.toString(xto)+ Integer.toString(yto-1);
                             }
                         }
                     }
@@ -758,6 +826,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     fromSpot.setPiece(null);
                     displayBoard[xfrom][yfrom].setBackgroundResource(0);
+                    if (!castledK && !castledQ && !pawnPromo) {
+                        if (thirdMove==null) {
+                            prevMoves.add(Integer.toString(fromSpot.getXCoordinate()) + Integer.toString(fromSpot.getYCoordinate()) + "," + Integer.toString(clickedSpot.getXCoordinate()) + Integer.toString(clickedSpot.getYCoordinate()));
+                        }
+                        else{
+                            prevMoves.add(Integer.toString(fromSpot.getXCoordinate()) + Integer.toString(fromSpot.getYCoordinate()) + "," + Integer.toString(clickedSpot.getXCoordinate()) + Integer.toString(clickedSpot.getYCoordinate()) + "," + thirdMove);  //for enpassant
+                           // prevMoves.add(fromSpot.getXCoordinate() + fromSpot.getYCoordinate() + "," + clickedSpot.getXCoordinate() + clickedSpot.getYCoordinate() + "," + thirdMove);
+                        }
+                    }
+                    castledK = false;
+                    castledQ=false;
+
                     //clear color selection
                     if ((xfrom + yfrom)%2 == 0) {
                         displayBoardBg[xfrom][yfrom].setBackgroundResource(R.color.colorBoardLight);
@@ -789,6 +869,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     boolean checkmate = isCheckMate(0, chessBoard);
                     if (checkmate) {
                         gameOver.setText("Black Wins!");
+                        Log.d("moves",prevMoves.toString());
                         gameOver.setVisibility(View.VISIBLE);
                         gameOver();
                     } else {
@@ -812,6 +893,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     boolean checkmate = isCheckMate(1, chessBoard);
                     if (checkmate) {
                         gameOver.setText("White Wins!");
+                        Log.d("moves",prevMoves.toString());
                         gameOver.setVisibility(View.VISIBLE);
                         gameOver();
                     } else {
@@ -827,13 +909,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("ChessApp", "Black's Move");
             }
         }
-
+        //Log.d("Third move outside",thirdMove);
+        thirdMove=null;
     }
     public void pawnPick(View v){
         int currColor = whiteTurn ? 1 : 0; //ik its swapped for turn here idk why but it works
         switch (v.getId()){
             case R.id.pawn2queen :
                 chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setPiece(new Queen(currColor));
+                thirdMove="Q";
                 if (!whiteTurn){
                     displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.wqueen);
                 }else{
@@ -842,6 +926,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.pawn2rook :
                 chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setPiece(new Rook(currColor));
+                thirdMove="R";
                 if (!whiteTurn){
                     displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.wrook);
                 }else{
@@ -850,6 +935,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.pawn2bishop :
                 chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setPiece(new Bishop(currColor));
+                thirdMove="B";
                 if (!whiteTurn){
                     displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.wbishop);
                 }else{
@@ -858,6 +944,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.pawn2knight :
                 chessBoard.grid[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setPiece(new Knight(currColor));
+                thirdMove="K";
                 if (!whiteTurn){
                     displayBoard[clickedSpot.getXCoordinate()][clickedSpot.getYCoordinate()].setBackgroundResource(R.drawable.wknight);
                 }else{
@@ -865,6 +952,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
         }
+       // Log.d("Third move:",thirdMove);
+        prevMoves.add(Integer.toString(xStart)+Integer.toString(yStart)+ "," + Integer.toString(xEnd) + Integer.toString(yEnd) + "," + thirdMove);
         pawnPromoer.setVisibility(View.INVISIBLE);
 
     }
@@ -906,8 +995,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return false;
     }
+
     private int getResource(ChessPiece piece){
         if (piece != null && piece.getColor() == 0){
+
             if (piece instanceof Pawn){
                 return R.drawable.wpawn;
             }else if (piece instanceof Rook){
@@ -939,8 +1030,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return 0;
     }
 
+
     public void gameOver(){
         isGameOver = true;
+
         for (int i=0; i<8; i++){
             for (int j=0; j<8; j++){
                 displayBoard[j][i].setClickable(false);
@@ -952,14 +1045,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                String winner=whiteTurn? "Black":"White";
+                if (draw){
+                    winner="Draw";
+                }
                 Intent intent = new Intent(MainActivity.this, SaveGameScreen.class);
+                intent.putExtra("moves", prevMoves);
+                intent.putExtra("winner",winner);
                 startActivity(intent);
             }
         });
-        builder.setNegativeButton("No Thanks", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Intent intent = new Intent(MainActivity.this, HomePage.class);
                 startActivity(intent);
+
             }
         });
         AlertDialog dialog = builder.create();
